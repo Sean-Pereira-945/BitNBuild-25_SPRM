@@ -57,7 +57,63 @@ const getProfile = asyncHandler(async (req, res) => {
  * PUT /api/auth/profile
  */
 const updateProfile = asyncHandler(async (req, res) => {
-  Object.assign(req.user, req.body);
+  const {
+    name,
+    bio,
+    avatar,
+    location,
+    social,
+    preferences,
+    notificationPreferences,
+    profileVisibility,
+    walletAddress,
+  } = req.body;
+
+  if (typeof name !== 'undefined') {
+    req.user.name = name;
+  }
+  if (typeof bio !== 'undefined') {
+    req.user.bio = bio;
+  }
+  if (typeof avatar !== 'undefined') {
+    req.user.avatar = avatar;
+  }
+  if (typeof profileVisibility !== 'undefined') {
+    req.user.profileVisibility = profileVisibility;
+  }
+  if (typeof walletAddress !== 'undefined') {
+    const normalizedWallet = typeof walletAddress === 'string' ? walletAddress.trim().toLowerCase() : walletAddress;
+    req.user.walletAddress = normalizedWallet ? normalizedWallet : null;
+  }
+
+  if (location) {
+    req.user.location = {
+      ...(req.user.location || {}),
+      ...location,
+    };
+  }
+
+  if (social) {
+    req.user.social = {
+      ...(req.user.social || {}),
+      ...social,
+    };
+  }
+
+  if (preferences) {
+    req.user.preferences = {
+      ...(req.user.preferences || {}),
+      ...preferences,
+    };
+  }
+
+  if (notificationPreferences) {
+    req.user.notificationPreferences = {
+      ...(req.user.notificationPreferences || {}),
+      ...notificationPreferences,
+    };
+  }
+
   await req.user.save();
   return respond(res, 200, {
     message: 'Profile updated',

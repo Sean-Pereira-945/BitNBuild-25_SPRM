@@ -1,20 +1,21 @@
-import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../hooks/useAuth';
+import useAuth from '../../hooks/useAuth';
+import LoadingSpinner from '../UI/LoadingSpinner';
 
-const ProtectedRoute = ({ children }) => {
-  const { isAuthenticated, loading } = useAuth();
+const ProtectedRoute = ({ children, roles }) => {
+  const { isAuthenticated, loading, user, getDashboardPath } = useAuth();
   const location = useLocation();
 
   if (loading) {
-    // Optionally, show a loading spinner
-    return <div>Loading...</div>;
+    return <LoadingSpinner fullscreen message="Preparing your dashboard" />;
   }
 
   if (!isAuthenticated) {
-    // Redirect them to the /login page, but save the current location they were
-    // trying to go to. This allows us to send them along to that page after they log in.
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  if (roles && user && !roles.includes(user.role)) {
+    return <Navigate to={getDashboardPath()} state={{ from: location, unauthorized: true }} replace />;
   }
 
   return children;

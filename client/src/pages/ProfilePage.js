@@ -1,128 +1,177 @@
-/**
- * ProfilePage - User dashboard that conditionally renders based on role
- */
-import React from 'react';
-import { useAuth } from '../hooks/useAuth';
-
-// Placeholder dashboard components
-const AttendeeDashboard = () => (
-  <div>
-    <h2>Attendee Dashboard</h2>
-    <div style={{ 
-      display: 'grid', 
-      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-      gap: '1rem',
-      marginTop: '1.5rem'
-    }}>
-      <div style={{ padding: '1.5rem', border: '1px solid var(--border-primary)', borderRadius: 'var(--radius-lg)' }}>
-        <h3>Events Attended</h3>
-        <p style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--primary-600)' }}>12</p>
-      </div>
-      <div style={{ padding: '1.5rem', border: '1px solid var(--border-primary)', borderRadius: 'var(--radius-lg)' }}>
-        <h3>Certificates</h3>
-        <p style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--success-600)' }}>8</p>
-      </div>
-      <div style={{ padding: '1.5rem', border: '1px solid var(--border-primary)', borderRadius: 'var(--radius-lg)' }}>
-        <h3>Upcoming Events</h3>
-        <p style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--warning-600)' }}>3</p>
-      </div>
-    </div>
-    
-    <section style={{ marginTop: '2rem' }}>
-      <h3>Recent Activity</h3>
-      <div style={{ marginTop: '1rem' }}>
-        <p className="text-secondary">• Attended "React Conference 2025" - Certificate issued</p>
-        <p className="text-secondary">• Registered for "Blockchain Summit 2025"</p>
-        <p className="text-secondary">• Shared certificate on LinkedIn</p>
-      </div>
-    </section>
-  </div>
-);
-
-const OrganizerDashboard = () => (
-  <div>
-    <h2>Organizer Dashboard</h2>
-    <div style={{ 
-      display: 'grid', 
-      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', 
-      gap: '1rem',
-      marginTop: '1.5rem'
-    }}>
-      <div style={{ padding: '1.5rem', border: '1px solid var(--border-primary)', borderRadius: 'var(--radius-lg)' }}>
-        <h3>Events Created</h3>
-        <p style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--primary-600)' }}>5</p>
-      </div>
-      <div style={{ padding: '1.5rem', border: '1px solid var(--border-primary)', borderRadius: 'var(--radius-lg)' }}>
-        <h3>Total Attendees</h3>
-        <p style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--success-600)' }}>234</p>
-      </div>
-      <div style={{ padding: '1.5rem', border: '1px solid var(--border-primary)', borderRadius: 'var(--radius-lg)' }}>
-        <h3>Certificates Issued</h3>
-        <p style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--warning-600)' }}>187</p>
-      </div>
-    </div>
-    
-    <section style={{ marginTop: '2rem' }}>
-      <h3>Your Events</h3>
-      <div style={{ marginTop: '1rem' }}>
-        <div style={{ 
-          padding: '1rem', 
-          border: '1px solid var(--border-primary)', 
-          borderRadius: 'var(--radius-base)',
-          marginBottom: '0.5rem'
-        }}>
-          <strong>React Conference 2025</strong> - 234 attendees - Active
-        </div>
-        <div style={{ 
-          padding: '1rem', 
-          border: '1px solid var(--border-primary)', 
-          borderRadius: 'var(--radius-base)',
-          marginBottom: '0.5rem'
-        }}>
-          <strong>Blockchain Summit 2025</strong> - 156 attendees - Upcoming
-        </div>
-      </div>
-      
-      <button 
-        style={{
-          marginTop: '1rem',
-          padding: '0.75rem 1.5rem',
-          backgroundColor: 'var(--primary-600)',
-          color: 'white',
-          border: 'none',
-          borderRadius: 'var(--radius-base)',
-          cursor: 'pointer'
-        }}
-      >
-        Create New Event
-      </button>
-    </section>
-  </div>
-);
+import { useEffect, useMemo, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import Button from '../components/UI/Button';
+import FormInput from '../components/UI/FormInput';
+import useAuth from '../hooks/useAuth';
+import * as authService from '../services/authService';
+import { useNotifications } from '../context/NotificationContext';
+import { parseAPIError } from '../utils/errorHandling';
+import './pages.css';
 
 const ProfilePage = () => {
-  const { user } = useAuth();
+  const { user, refreshProfile } = useAuth();
+  const { showNotification } = useNotifications();
+  const [isSaving, setIsSaving] = useState(false);
+
+  const defaultValues = useMemo(
+    () => ({
+      name: user?.name || '',
+      bio: user?.bio || '',
+      walletAddress: user?.walletAddress || '',
+      profileVisibility: user?.profileVisibility || 'public',
+      notificationPreferences: {
+        email: user?.notificationPreferences?.email ?? true,
+        push: user?.notificationPreferences?.push ?? true,
+        eventReminders: user?.notificationPreferences?.eventReminders ?? true,
+        organizerAnnouncements: user?.notificationPreferences?.organizerAnnouncements ?? true,
+        nftUpdates: user?.notificationPreferences?.nftUpdates ?? true
+      }
+    }),
+    [user]
+  );
+
+  const { register, handleSubmit, reset, formState } = useForm({
+    defaultValues
+  });
+
+  useEffect(() => {
+    reset(defaultValues);
+  }, [defaultValues, reset]);
+
+  const onSubmit = async (values) => {
+    try {
+      setIsSaving(true);
+      await authService.updateProfile({
+        name: values.name,
+        bio: values.bio,
+        walletAddress: values.walletAddress?.trim() || null,
+        profileVisibility: values.profileVisibility,
+        notificationPreferences: values.notificationPreferences
+      });
+      await refreshProfile();
+      showNotification({
+        type: 'success',
+        title: 'Profile updated',
+        message: 'Your preferences were saved successfully.'
+      });
+    } catch (error) {
+      showNotification({
+        type: 'error',
+        title: 'Update failed',
+        message: parseAPIError(error)
+      });
+    } finally {
+      setIsSaving(false);
+    }
+  };
 
   return (
-    <div className="container">
-      <div style={{ marginBottom: '2rem' }}>
-        <h1>Welcome, {user?.name || 'User'}!</h1>
-        <p className="text-secondary">
-          Role: <span style={{ 
-            padding: '0.25rem 0.5rem', 
-            backgroundColor: user?.role === 'organizer' ? 'var(--primary-100)' : 'var(--success-100)',
-            color: user?.role === 'organizer' ? 'var(--primary-800)' : 'var(--success-800)',
-            borderRadius: 'var(--radius-sm)',
-            fontSize: '0.875rem'
-          }}>
-            {user?.role === 'organizer' ? 'Event Organizer' : 'Attendee'}
-          </span>
-        </p>
-      </div>
+    <section className="page" aria-labelledby="profile-heading">
+      <header className="page__header">
+        <h1 id="profile-heading">Profile & preferences</h1>
+        <p>Control what the community sees, connect your wallet, and fine-tune how you receive updates.</p>
+      </header>
+      <form className="page__content" onSubmit={handleSubmit(onSubmit)}>
+        <div className="page__section" aria-labelledby="profile-basic-heading">
+          <div className="page__section-header">
+            <h2 id="profile-basic-heading">Account details</h2>
+            <p>Keep your identity current so organizers and attendees know who they are interacting with.</p>
+          </div>
+          <div className="form-grid">
+            <FormInput
+              label="Full name"
+              placeholder="Ada Lovelace"
+              autoComplete="name"
+              {...register('name', { required: 'Name is required' })}
+              error={formState.errors.name?.message}
+            />
+            <div className="form-field">
+              <span className="form-field__label">Bio</span>
+              <textarea
+                className="form-field__input form-field__textarea"
+                rows={4}
+                placeholder="Share your mission, achievements, or community goals."
+                {...register('bio', { maxLength: { value: 500, message: 'Bio cannot exceed 500 characters' } })}
+              />
+              {formState.errors.bio && <small className="form-field__helper has-error">{formState.errors.bio.message}</small>}
+            </div>
+            <FormInput
+              label="Wallet address"
+              placeholder="0x..."
+              helperText="Used for NFT minting and badge claims."
+              {...register('walletAddress', {
+                pattern: {
+                  value: /^0x[a-fA-F0-9]{40}$/,
+                  message: 'Enter a valid Ethereum-compatible wallet address'
+                }
+              })}
+              error={formState.errors.walletAddress?.message}
+            />
+            <div className="form-field">
+              <span className="form-field__label">Profile visibility</span>
+              <select className="form-field__input" {...register('profileVisibility')}> 
+                <option value="public">Public - anyone can view your profile</option>
+                <option value="private">Private - only followers and admins can view</option>
+              </select>
+            </div>
+          </div>
+        </div>
 
-      {user?.role === 'organizer' ? <OrganizerDashboard /> : <AttendeeDashboard />}
-    </div>
+        <div className="page__section" aria-labelledby="notification-preferences-heading">
+          <div className="page__section-header">
+            <h2 id="notification-preferences-heading">Notifications</h2>
+            <p>Choose how EventChain keeps you informed about drops, attendance, and social activity.</p>
+          </div>
+          <div className="checkbox-grid">
+            <CheckboxField
+              label="Email alerts"
+              description="Receive event reminders, confirmations, and follow updates in your inbox."
+              registration={register('notificationPreferences.email')}
+            />
+            <CheckboxField
+              label="Push notifications"
+              description="Get real-time alerts in the web app or mobile companion."
+              registration={register('notificationPreferences.push')}
+            />
+            <CheckboxField
+              label="Event reminders"
+              description="Heads-up messages when a session, drop, or QR window is about to open."
+              registration={register('notificationPreferences.eventReminders')}
+            />
+            <CheckboxField
+              label="Organizer announcements"
+              description="News from organizers you follow, including new events and behind-the-scenes drops."
+              registration={register('notificationPreferences.organizerAnnouncements')}
+            />
+            <CheckboxField
+              label="NFT updates"
+              description="Alerts when badges are minted, verified, or shared from your collection."
+              registration={register('notificationPreferences.nftUpdates')}
+            />
+          </div>
+        </div>
+
+        <footer className="page__actions">
+          <Button type="button" variant="ghost" onClick={() => reset(defaultValues)} disabled={isSaving}>
+            Reset changes
+          </Button>
+          <Button type="submit" isLoading={isSaving}>
+            Save profile
+          </Button>
+        </footer>
+      </form>
+    </section>
   );
 };
+
+const CheckboxField = ({ label, description, registration }) => (
+  <label className="checkbox-card">
+    <input type="checkbox" {...registration} />
+    <span>
+      <strong>{label}</strong>
+      <small>{description}</small>
+    </span>
+  </label>
+);
 
 export default ProfilePage;

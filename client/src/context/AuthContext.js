@@ -1,201 +1,113 @@
-/**
- * AuthContext - Authentication state management
- * Manages user authentication state, login/logout functionality
- */
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { getStoredToken, removeStoredToken } from '../utils/storage';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import * as authService from '../services/authService';
+import { storage } from '../utils/storage';
+import { parseAPIError } from '../utils/errorHandling';
+import { ROLE_DASHBOARD_PATHS } from '../utils/constants';
+import { useNotifications } from './NotificationContext';
 
-// Initial state
-const initialState = {
-  user: null,
-  isAuthenticated: false,
-  loading: true,
-  error: null
-};
-
-// Action types
-const AUTH_ACTIONS = {
-  LOGIN_START: 'LOGIN_START',
-  LOGIN_SUCCESS: 'LOGIN_SUCCESS',
-  LOGIN_FAILURE: 'LOGIN_FAILURE',
-  LOGOUT: 'LOGOUT',
-  SET_LOADING: 'SET_LOADING',
-  CLEAR_ERROR: 'CLEAR_ERROR'
-};
-
-// Reducer function
-const authReducer = (state, action) => {
-  switch (action.type) {
-    case AUTH_ACTIONS.LOGIN_START:
-      return {
-        ...state,
-        loading: true,
-        error: null
-      };
-    case AUTH_ACTIONS.LOGIN_SUCCESS:
-      return {
-        ...state,
-        user: action.payload.user,
-        isAuthenticated: true,
-        loading: false,
-        error: null
-      };
-    case AUTH_ACTIONS.LOGIN_FAILURE:
-      return {
-        ...state,
-        user: null,
-        isAuthenticated: false,
-        loading: false,
-        error: action.payload.error
-      };
-    case AUTH_ACTIONS.LOGOUT:
-      return {
-        ...state,
-        user: null,
-        isAuthenticated: false,
-        loading: false,
-        error: null
-      };
-    case AUTH_ACTIONS.SET_LOADING:
-      return {
-        ...state,
-        loading: action.payload
-      };
-    case AUTH_ACTIONS.CLEAR_ERROR:
-      return {
-        ...state,
-        error: null
-      };
-    default:
-      return state;
-  }
-};
-
-// Create context
 const AuthContext = createContext();
 
-// AuthProvider component
 export const AuthProvider = ({ children }) => {
-  const [state, dispatch] = useReducer(authReducer, initialState);
+  const { showNotification } = useNotifications();
+  const [user, setUser] = useState(() => storage.get('user'));
+  const [loading, setLoading] = useState(false);
 
-  // Mock login function
-  const login = async (credentials) => {
-    try {
-      dispatch({ type: AUTH_ACTIONS.LOGIN_START });
-      
-      // Mock API call - replace with actual API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock user data
-      const mockUser = {
-        id: '1',
-        email: credentials.email,
-        name: 'John Doe',
-        role: credentials.email.includes('organizer') ? 'organizer' : 'attendee',
-        avatar: null
-      };
-      
-      dispatch({ 
-        type: AUTH_ACTIONS.LOGIN_SUCCESS, 
-        payload: { user: mockUser } 
-      });
-      
-      return { success: true, user: mockUser };
-    } catch (error) {
-      dispatch({ 
-        type: AUTH_ACTIONS.LOGIN_FAILURE, 
-        payload: { error: error.message } 
-      });
-      return { success: false, error: error.message };
-    }
-  };
-
-  // Mock register function
-  const register = async (userData) => {
-    try {
-      dispatch({ type: AUTH_ACTIONS.LOGIN_START });
-      
-      // Mock API call - replace with actual API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock user data
-      const mockUser = {
-        id: Date.now().toString(),
-        email: userData.email,
-        name: userData.name,
-        role: userData.role || 'attendee',
-        avatar: null
-      };
-      
-      dispatch({ 
-        type: AUTH_ACTIONS.LOGIN_SUCCESS, 
-        payload: { user: mockUser } 
-      });
-      
-      return { success: true, user: mockUser };
-    } catch (error) {
-      dispatch({ 
-        type: AUTH_ACTIONS.LOGIN_FAILURE, 
-        payload: { error: error.message } 
-      });
-      return { success: false, error: error.message };
-    }
-  };
-
-  // Logout function
-  const logout = () => {
-    removeStoredToken();
-    dispatch({ type: AUTH_ACTIONS.LOGOUT });
-  };
-
-  // Clear error function
-  const clearError = () => {
-    dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
-  };
-
-  // Check authentication status on mount
   useEffect(() => {
-    const token = getStoredToken();
-    if (token) {
-      // Mock user validation - replace with actual API call
-      const mockUser = {
-        id: '1',
-        email: 'user@example.com',
-        name: 'John Doe',
-        role: 'attendee',
-        avatar: null
-      };
-      dispatch({ 
-        type: AUTH_ACTIONS.LOGIN_SUCCESS, 
-        payload: { user: mockUser } 
+    const initialize = async () => {
+      const hasTokens = storage.get('accessToken');
+      if (!user && hasTokens) {
+        try {
+          setLoading(true);
+          const { data } = await authService.getProfile();
+          setUser(data.data.user);
+        } catch (error) {
+          authService.clearAuth();
+          setUser(null);
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+
+    initialize();
+  }, [user]);
+
+  const login = useCallback(async (formData) => {
+    try {
+      setLoading(true);
+      const data = await authService.login(formData);
+      setUser(data.user);
+      showNotification({ type: 'success', title: 'Welcome back!', message: 'You are now logged in.' });
+      return data;
+    } catch (error) {
+      const message = parseAPIError(error);
+      showNotification({ type: 'error', title: 'Login failed', message });
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, [showNotification]);
+
+  const register = useCallback(async (formData) => {
+    try {
+      setLoading(true);
+      const data = await authService.register(formData);
+      showNotification({
+        type: 'success',
+        title: 'Registration successful',
+        message: 'Check your email to verify your account.'
       });
-    } else {
-      dispatch({ type: AUTH_ACTIONS.SET_LOADING, payload: false });
+      return data;
+    } catch (error) {
+      const message = parseAPIError(error);
+      showNotification({ type: 'error', title: 'Registration failed', message });
+      throw error;
+    } finally {
+      setLoading(false);
+    }
+  }, [showNotification]);
+
+  const logout = useCallback(async () => {
+    try {
+      await authService.logout();
+    } catch (error) {
+      console.error('Logout error', error);
+    } finally {
+      authService.clearAuth();
+      setUser(null);
+      showNotification({ type: 'info', title: 'Logged out', message: 'You have been signed out.' });
+    }
+  }, [showNotification]);
+
+  const refreshProfile = useCallback(async () => {
+    try {
+      const { data } = await authService.getProfile();
+      setUser(data.data.user);
+    } catch (error) {
+      console.error('Profile refresh failed', error);
     }
   }, []);
 
-  const value = {
-    ...state,
-    login,
-    register,
-    logout,
-    clearError
-  };
-
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
+  const getDashboardPath = useCallback(
+    (role) => ROLE_DASHBOARD_PATHS[role || user?.role] || '/events',
+    [user?.role]
   );
+
+  const value = useMemo(
+    () => ({
+      user,
+      loading,
+      isAuthenticated: Boolean(user),
+      login,
+      register,
+      logout,
+      refreshProfile,
+      getDashboardPath
+    }),
+    [user, loading, login, register, logout, refreshProfile, getDashboardPath]
+  );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-// Custom hook to use auth context
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
-
-export default AuthContext;
+export const useAuth = () => useContext(AuthContext);

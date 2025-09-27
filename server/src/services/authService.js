@@ -3,6 +3,7 @@ const User = require('../models/User');
 const tokenService = require('./tokenService');
 const emailService = require('./emailService');
 const Notification = require('../models/Notification');
+const logger = require('../config/logger');
 const { NOTIFICATION_TYPES, SOCKET_ROOMS } = require('../utils/constants');
 
 const buildPublicUser = (user) => {
@@ -10,6 +11,10 @@ const buildPublicUser = (user) => {
   delete userObj.password;
   delete userObj.security;
   delete userObj.integrations;
+  delete userObj.resetPasswordToken;
+  delete userObj.resetPasswordExpires;
+  delete userObj.emailVerificationToken;
+  delete userObj.emailVerificationExpires;
   delete userObj.__v;
   return userObj;
 };
@@ -27,6 +32,9 @@ const registerUser = async (payload, ipAddress, io) => {
     role: payload.role || 'attendee',
     bio: payload.bio,
     location: payload.location,
+    profileVisibility: payload.profileVisibility || 'public',
+    walletAddress: payload.walletAddress ? payload.walletAddress.trim().toLowerCase() : null,
+    notificationPreferences: payload.notificationPreferences,
   });
 
   const tokens = await tokenService.generateAuthTokens(user, ipAddress);
@@ -49,13 +57,25 @@ const registerUser = async (payload, ipAddress, io) => {
 };
 
 const loginUser = async (email, password, ipAddress) => {
-  const user = await User.findOne({ email }).select('+password');
+  // Basic input validation
+  const normalizedEmail = (email || '').toString().trim().toLowerCase();
+  const providedPassword = password || '';
+
+  if (!normalizedEmail || !providedPassword) {
+    logger.debug('Auth login attempt with missing fields', { ipAddress, email: normalizedEmail ? '<redacted>' : null });
+    throw new AppError('Email and password are required', 400);
+  }
+
+  const user = await User.findOne({ email: normalizedEmail }).select('+password');
   if (!user) {
+    logger.debug('Invalid login - user not found', { email: normalizedEmail, ipAddress });
+    // generic message to avoid user enumeration
     throw new AppError('Invalid credentials', 401);
   }
 
-  const isMatch = await user.matchPassword(password);
+  const isMatch = await user.matchPassword(providedPassword);
   if (!isMatch) {
+    logger.debug('Invalid login - wrong password', { userId: user._id, email: normalizedEmail, ipAddress });
     throw new AppError('Invalid credentials', 401);
   }
 

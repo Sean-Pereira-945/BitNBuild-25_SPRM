@@ -29,6 +29,18 @@ const authValidators = {
       city: Joi.string().trim().max(100).allow('', null),
       country: Joi.string().trim().max(100).allow('', null),
     }).optional(),
+    walletAddress: Joi.string()
+      .pattern(/^0x[a-fA-F0-9]{40}$/)
+      .lowercase()
+      .allow('', null),
+    profileVisibility: Joi.string().valid('public', 'private').default('public'),
+    notificationPreferences: Joi.object({
+      email: Joi.boolean(),
+      push: Joi.boolean(),
+      eventReminders: Joi.boolean(),
+      organizerAnnouncements: Joi.boolean(),
+      nftUpdates: Joi.boolean(),
+    }).optional(),
   }),
   login: Joi.object({
     email: Joi.string().email().required(),
@@ -50,7 +62,22 @@ const authValidators = {
       twitter: Joi.string().uri().allow('', null),
       website: Joi.string().uri().allow('', null),
     }),
-    preferences: Joi.object().unknown(true),
+    preferences: Joi.object({
+      language: Joi.string().trim().max(10),
+      theme: Joi.string().valid('light', 'dark', 'system'),
+    }).optional(),
+    notificationPreferences: Joi.object({
+      email: Joi.boolean(),
+      push: Joi.boolean(),
+      eventReminders: Joi.boolean(),
+      organizerAnnouncements: Joi.boolean(),
+      nftUpdates: Joi.boolean(),
+    }).optional(),
+    profileVisibility: Joi.string().valid('public', 'private'),
+    walletAddress: Joi.string()
+      .pattern(/^0x[a-fA-F0-9]{40}$/)
+      .lowercase()
+      .allow('', null),
   }),
 };
 

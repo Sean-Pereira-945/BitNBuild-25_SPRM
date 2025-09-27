@@ -1,0 +1,65 @@
+.event-form {
+  display: grid;
+  gap: 1.5rem;
+  max-height: calc(90vh - 4rem);
+  overflow-y: auto;
+  padding-right: 0.5rem;
+}
+
+.event-form__section {
+  display: grid;
+  gap: 1rem;
+}
+
+.event-form__section h3 {
+  margin: 0;
+}
+
+.event-form__toggles {
+  display: grid;
+  gap: 1rem;
+}
+
+.toggle-field {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.toggle-field input {
+  margin-top: 0.4rem;
+}
+
+.toggle-field strong {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.toggle-field small {
+  color: var(--color-text-secondary);
+  line-height: 1.45;
+}
+
+.event-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.75rem;
+  position: sticky;
+  bottom: 0;
+  padding: 1rem 0 0.5rem;
+  background: linear-gradient(
+    180deg,
+    rgba(8, 18, 40, 0) 0%,
+    var(--color-surface, rgba(8, 18, 40, 0.92)) 60%
+  );
+}
+
+.theme-light .toggle-field {
+  background: rgba(255, 255, 255, 0.85);
+}

@@ -48,6 +48,19 @@ const userSchema = new mongoose.Schema({
         city: String,
         country: String
     },
+    walletAddress: {
+        type: String,
+        trim: true,
+        unique: true,
+        sparse: true,
+        match: [/^0x[a-fA-F0-9]{40}$/i, 'Please provide a valid wallet address'],
+        default: null
+    },
+    profileVisibility: {
+        type: String,
+        enum: ['public', 'private'],
+        default: 'public'
+    },
     
     // Social connections
     following: [{
@@ -70,6 +83,13 @@ const userSchema = new mongoose.Schema({
             default: Date.now
         }
     }],
+    followedOrganizers: {
+        type: [{
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'User'
+        }],
+        default: []
+    },
     
     social: {
         linkedin: { type: String, trim: true },
@@ -98,24 +118,28 @@ const userSchema = new mongoose.Schema({
             type: String,
             enum: ['light', 'dark', 'system'],
             default: 'light'
+        }
+    },
+    notificationPreferences: {
+        email: {
+            type: Boolean,
+            default: true
         },
-        notifications: {
-            email: {
-                type: Boolean,
-                default: true
-            },
-            push: {
-                type: Boolean,
-                default: true
-            },
-            eventReminders: {
-                type: Boolean,
-                default: true
-            },
-            newFollowers: {
-                type: Boolean,
-                default: true
-            }
+        push: {
+            type: Boolean,
+            default: true
+        },
+        eventReminders: {
+            type: Boolean,
+            default: true
+        },
+        organizerAnnouncements: {
+            type: Boolean,
+            default: true
+        },
+        nftUpdates: {
+            type: Boolean,
+            default: true
         }
     },
 
@@ -197,6 +221,8 @@ const userSchema = new mongoose.Schema({
 userSchema.index({ email: 1 });
 userSchema.index({ role: 1 });
 userSchema.index({ 'following.user': 1 });
+userSchema.index({ walletAddress: 1 }, { sparse: true });
+userSchema.index({ profileVisibility: 1 });
 userSchema.index({ totalCredits: -1 });
 userSchema.plugin(uniqueValidator, { message: '{PATH} must be unique.' });
 userSchema.plugin(leanVirtuals);
@@ -242,6 +268,29 @@ userSchema.methods.getStats = function() {
         followersCount: this.followerCount,
         followingCount: this.followingCount
     };
+};
+
+userSchema.methods.isOrganizer = function() {
+    return this.role === 'organizer';
+};
+
+userSchema.methods.isProfileVisibleTo = function(viewer) {
+    if (this.profileVisibility === 'public') {
+        return true;
+    }
+
+    if (!viewer) {
+        return false;
+    }
+
+    if (viewer._id.equals(this._id)) {
+        return true;
+    }
+
+    return (
+        viewer.role === 'admin' ||
+        this.followers.some((follower) => follower.user && follower.user.equals(viewer._id))
+    );
 };
 
 // Static method to find users by role

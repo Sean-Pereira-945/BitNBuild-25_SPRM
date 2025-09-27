@@ -1,185 +1,158 @@
-/**
- * HomePage - Landing page for EventChain
- * Main entry point showcasing app features and value proposition
- */
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { Link, useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import Button from '../components/UI/Button';
+import './pages.css';
+
+const features = [
+  {
+    title: 'Instant blockchain notarisation',
+    description:
+      'Every ticket scan and certificate issuance is sealed on-chain, giving attendees and partners verifiable proof in seconds.',
+    accent: '01'
+  },
+  {
+    title: 'Automation that scales with you',
+    description:
+      'Trigger reminders, follow-ups, and badge printing with flexible automation flows that adapt to virtual, hybrid, or in-person events.',
+    accent: '02'
+  },
+  {
+    title: 'Insights that keep momentum',
+    description:
+      'Monitor attendance, engagement, and certification uptake in real-time dashboards, then sync results straight to your CRM.',
+    accent: '03'
+  }
+];
+
+const highlights = [
+  { label: 'Events launched', value: '1.2k+' },
+  { label: 'Certificates issued', value: '82k' },
+  { label: 'Verification uptime', value: '99.98%' },
+  { label: 'Avg. onboarding time', value: '4 min' }
+];
+
+const roadmap = [
+  {
+    title: 'Launch resilient events',
+    description: 'Blueprint templates, guest import, and smart capacity rules ensure every launch is organised and on brand.'
+  },
+  {
+    title: 'Delight attendees instantly',
+    description: 'Responsive check-in flows, wallet-ready certificates, and push notifications keep guests in the loop.'
+  },
+  {
+    title: 'Prove outcomes with confidence',
+    description: 'Export tamper-proof certificates, publish public verification portals, and share success metrics with stakeholders.'
+  }
+];
+
+const animation = {
+  initial: { opacity: 0, y: 24 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.5, ease: 'easeOut' }
+};
 
 const HomePage = () => {
-  const { isAuthenticated, user } = useAuth();
+  const navigate = useNavigate();
 
   return (
-    <div className="container">
-      {/* Hero Section */}
-      <section className="hero-section text-center" style={{ padding: '4rem 0' }}>
-        <h1 style={{ fontSize: '3rem', marginBottom: '1rem', fontWeight: 'bold' }}>
-          Welcome to EventChain
-        </h1>
-        <p style={{ fontSize: '1.25rem', color: 'var(--text-secondary)', marginBottom: '2rem', maxWidth: '600px', margin: '0 auto 2rem' }}>
-          The decentralized event management platform that issues verifiable, 
-          tamper-proof attendance certificates on the blockchain.
-        </p>
-        
-        {!isAuthenticated ? (
-          <div className="flex gap-4 justify-center">
-            <Link 
-              to="/register" 
-              style={{
-                display: 'inline-block',
-                padding: '0.75rem 2rem',
-                backgroundColor: 'var(--primary-600)',
-                color: 'white',
-                borderRadius: 'var(--radius-lg)',
-                textDecoration: 'none',
-                fontWeight: '600',
-                transition: 'background-color var(--transition-fast)'
-              }}
-            >
-              Get Started
-            </Link>
-            <Link 
-              to="/login"
-              style={{
-                display: 'inline-block',
-                padding: '0.75rem 2rem',
-                border: '2px solid var(--primary-600)',
-                color: 'var(--primary-600)',
-                borderRadius: 'var(--radius-lg)',
-                textDecoration: 'none',
-                fontWeight: '600',
-                transition: 'all var(--transition-fast)'
-              }}
-            >
-              Sign In
-            </Link>
+    <div className="home" aria-labelledby="home-heading">
+      <section className="home__hero gradient-surface">
+        <motion.div className="home__hero-content" {...animation}>
+          <p className="home__eyebrow">Trusted verification for future-proof events</p>
+          <h1 id="home-heading">Craft unforgettable experiences, backed by blockchain certainty.</h1>
+          <p className="home__lead">
+            EventChain unifies registration, live engagement, certificate issuance, and verifiable analytics into one beautifully
+            orchestrated workspace. Launch in minutes and keep your community connected long after the closing keynote.
+          </p>
+          <div className="home__cta">
+            <Button type="button" size="lg" onClick={() => navigate('/register')}>
+              Start for free
+            </Button>
+            <Button variant="outline" size="lg" onClick={() => navigate('/events')}>
+              Explore the dashboard
+            </Button>
           </div>
-        ) : (
-          <div>
-            <h2>Welcome back, {user?.name}!</h2>
-            <div className="flex gap-4 justify-center" style={{ marginTop: '1rem' }}>
-              <Link 
-                to="/profile"
-                style={{
-                  display: 'inline-block',
-                  padding: '0.75rem 2rem',
-                  backgroundColor: 'var(--primary-600)',
-                  color: 'white',
-                  borderRadius: 'var(--radius-lg)',
-                  textDecoration: 'none',
-                  fontWeight: '600'
-                }}
-              >
-                Go to Dashboard
-              </Link>
-              <Link 
-                to="/events"
-                style={{
-                  display: 'inline-block',
-                  padding: '0.75rem 2rem',
-                  border: '2px solid var(--primary-600)',
-                  color: 'var(--primary-600)',
-                  borderRadius: 'var(--radius-lg)',
-                  textDecoration: 'none',
-                  fontWeight: '600'
-                }}
-              >
-                Browse Events
-              </Link>
+          <div className="home__meta">
+            <span>🎟️ Verified tickets &amp; certificates</span>
+            <span>⚡ Realtime analytics</span>
+            <span>🔐 SOC2-ready security</span>
+          </div>
+        </motion.div>
+        <motion.div className="home__stats" initial={{ opacity: 0, scale: 0.92 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6, delay: 0.2 }}>
+          {highlights.map((item) => (
+            <div key={item.label} className="home__stat">
+              <span className="home__stat-value">{item.value}</span>
+              <span className="home__stat-label">{item.label}</span>
             </div>
-          </div>
-        )}
+          ))}
+        </motion.div>
       </section>
 
-      {/* Features Section */}
-      <section style={{ padding: '4rem 0', borderTop: '1px solid var(--border-primary)' }}>
-        <div className="text-center" style={{ marginBottom: '3rem' }}>
-          <h2>Why Choose EventChain?</h2>
-          <p className="text-secondary">Revolutionizing event management with blockchain technology</p>
-        </div>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
-          {/* Blockchain Certificates */}
-          <div className="feature-card" style={{ padding: '2rem', border: '1px solid var(--border-primary)', borderRadius: 'var(--radius-lg)' }}>
-            <h3>🔐 Blockchain Certificates</h3>
-            <p className="text-secondary">
-              Issue tamper-proof attendance certificates that can be verified on the blockchain 
-              and shared on professional networks like LinkedIn.
-            </p>
-          </div>
-
-          {/* GPS Attendance */}
-          <div className="feature-card" style={{ padding: '2rem', border: '1px solid var(--border-primary)', borderRadius: 'var(--radius-lg)' }}>
-            <h3>📍 GPS-Based Attendance</h3>
-            <p className="text-secondary">
-              Ensure authentic attendance with GPS verification and geofence technology. 
-              No more proxy attendance or fraudulent check-ins.
-            </p>
-          </div>
-
-          {/* Organizer Tools */}
-          <div className="feature-card" style={{ padding: '2rem', border: '1px solid var(--border-primary)', borderRadius: 'var(--radius-lg)' }}>
-            <h3>🎯 Organizer Dashboard</h3>
-            <p className="text-secondary">
-              Comprehensive analytics, attendee management, and real-time insights 
-              to make your events successful.
-            </p>
-          </div>
-
-          {/* Attendee Experience */}
-          <div className="feature-card" style={{ padding: '2rem', border: '1px solid var(--border-primary)', borderRadius: 'var(--radius-lg)' }}>
-            <h3>✨ Seamless Experience</h3>
-            <p className="text-secondary">
-              Simple registration, QR code check-ins, and a personal certificate 
-              collection that showcases your learning journey.
-            </p>
-          </div>
-
-          {/* Decentralized */}
-          <div className="feature-card" style={{ padding: '2rem', border: '1px solid var(--border-primary)', borderRadius: 'var(--radius-lg)' }}>
-            <h3>🌐 Decentralized & Secure</h3>
-            <p className="text-secondary">
-              Built on blockchain technology ensuring data integrity, transparency, 
-              and ownership of your credentials.
-            </p>
-          </div>
-
-          {/* Social Integration */}
-          <div className="feature-card" style={{ padding: '2rem', border: '1px solid var(--border-primary)', borderRadius: 'var(--radius-lg)' }}>
-            <h3>🤝 Social Integration</h3>
-            <p className="text-secondary">
-              Share your achievements directly to LinkedIn and other social platforms 
-              with verified blockchain credentials.
-            </p>
-          </div>
+      <section className="home__features card">
+        <motion.div className="home__section-head" {...animation}>
+          <p className="home__eyebrow">Why teams choose EventChain</p>
+          <h2>Purpose-built for ops, marketing, and compliance teams alike.</h2>
+        </motion.div>
+        <div className="home__feature-grid">
+          {features.map((feature, index) => (
+            <motion.article
+              key={feature.title}
+              className="home__feature"
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.4 }}
+              transition={{ duration: 0.4, delay: index * 0.1 }}
+            >
+              <span className="home__feature-index">{feature.accent}</span>
+              <h3>{feature.title}</h3>
+              <p>{feature.description}</p>
+            </motion.article>
+          ))}
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section style={{ padding: '4rem 0', textAlign: 'center', backgroundColor: 'var(--bg-secondary)', borderRadius: 'var(--radius-lg)', margin: '2rem 0' }}>
-        <h2>Ready to Transform Your Events?</h2>
-        <p className="text-secondary" style={{ marginBottom: '2rem' }}>
-          Join thousands of organizers and attendees who trust EventChain 
-          for their professional development and networking needs.
-        </p>
-        
-        {!isAuthenticated && (
-          <Link 
-            to="/register"
-            style={{
-              display: 'inline-block',
-              padding: '1rem 2.5rem',
-              backgroundColor: 'var(--primary-600)',
-              color: 'white',
-              borderRadius: 'var(--radius-lg)',
-              textDecoration: 'none',
-              fontWeight: '600',
-              fontSize: '1.125rem'
-            }}
-          >
-            Start Your Journey
-          </Link>
-        )}
+      <section className="home__journey">
+        <motion.div className="home__section-head" {...animation}>
+          <p className="home__eyebrow">Deliver value end-to-end</p>
+          <h2>From idea to impact in one streamlined journey.</h2>
+        </motion.div>
+        <div className="home__timeline">
+          {roadmap.map((item, index) => (
+            <motion.div
+              key={item.title}
+              className="home__timeline-step"
+              initial={{ opacity: 0, x: index % 2 === 0 ? -32 : 32 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true, amount: 0.5 }}
+              transition={{ duration: 0.4, delay: index * 0.1 }}
+            >
+              <div className="home__timeline-index">{index + 1}</div>
+              <div className="home__timeline-content">
+                <h3>{item.title}</h3>
+                <p>{item.description}</p>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      <section className="home__cta-block gradient-surface">
+        <motion.div className="home__cta-content" {...animation}>
+          <h2>Ready for the next flagship event?</h2>
+          <p>
+            Spin up a collaborative workspace, invite teammates, and launch your first blockchain-backed experience in under ten
+            minutes. No credit card required.
+          </p>
+          <div className="home__cta">
+            <Button size="lg" onClick={() => navigate('/register')}>
+              Create organisation
+            </Button>
+            <Link to="/contact" className="home__link">
+              Talk to our team →
+            </Link>
+          </div>
+        </motion.div>
       </section>
     </div>
   );

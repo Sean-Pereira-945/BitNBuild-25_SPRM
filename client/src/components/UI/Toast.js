@@ -1,21 +1,22 @@
-import React, { useEffect } from 'react';
-// Part of the NotificationContext system
+import { useNotifications } from '../../context/NotificationContext';
+import './Toast.css';
 
-const Toast = ({ message, type, onClose }) => {
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      onClose();
-    }, 5000); // Auto-dismiss after 5 seconds
-
-    return () => {
-      clearTimeout(timer);
-    };
-  }, [onClose]);
+const Toast = () => {
+  const { notifications, removeNotification } = useNotifications();
 
   return (
-    <div className={`toast toast-${type}`}>
-      <p>{message}</p>
-      <button onClick={onClose}>&times;</button>
+    <div className="toast-container" role="status" aria-live="polite">
+      {notifications.map(({ id, type, title, message }) => (
+        <div key={id} className={`toast toast--${type}`}>
+          <div className="toast__content">
+            <strong>{title}</strong>
+            {message && <p>{message}</p>}
+          </div>
+          <button type="button" onClick={() => removeNotification(id)} aria-label="Dismiss notification">
+            ×
+          </button>
+        </div>
+      ))}
     </div>
   );
 };
