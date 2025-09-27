@@ -7,7 +7,6 @@ import FormInput from '../components/UI/FormInput';
 import Modal from '../components/UI/Modal';
 import useAuth from '../hooks/useAuth';
 import { useNotifications } from '../context/NotificationContext';
-import * as certificateService from '../services/certificateService';
 import * as authService from '../services/authService';
 import { parseAPIError } from '../utils/errorHandling';
 import './pages.css';

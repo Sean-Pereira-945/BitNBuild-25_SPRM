@@ -1,7 +1,7 @@
 const crypto = require('crypto');
 
 /**
- * Simple Merkle tree implementation for certificate datasets.
+ * Simple Merkle tree implementation.
  */
 class MerkleTree {
   constructor(leaves = []) {

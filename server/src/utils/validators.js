@@ -147,20 +147,9 @@ const attendanceValidators = {
   }),
 };
 
-const certificateValidators = {
-  issue: Joi.object({
-    eventId: Joi.string().hex().length(24).required(),
-    attendeeId: Joi.string().hex().length(24).required(),
-  }),
-  verify: Joi.object({
-    hash: Joi.string().hex().length(64).required(),
-  }),
-};
-
 module.exports = {
   authValidators,
   eventValidators,
   attendanceValidators,
-  certificateValidators,
   paginationQuery,
 };

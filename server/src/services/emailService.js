@@ -36,21 +36,7 @@ const sendPasswordResetEmail = async (user, resetToken) => {
   }
 };
 
-const sendCertificateIssuedEmail = async (user, event, certificateHash) => {
-  const mailOptions = buildMailOptions(
-    user.email,
-    `Your certificate for ${event.title}`,
-    `<p>Hi ${user.name},</p><p>Congratulations! Your certificate for <strong>${event.title}</strong> is now available.</p><p>Verification hash: ${certificateHash}</p>`
-  );
-  try {
-    await transporter.sendMail(mailOptions);
-  } catch (error) {
-    logger.warn('Failed to send certificate email', { error });
-  }
-};
-
 module.exports = {
   sendWelcomeEmail,
   sendPasswordResetEmail,
-  sendCertificateIssuedEmail,
 };

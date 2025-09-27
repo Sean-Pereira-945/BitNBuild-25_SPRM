@@ -16,7 +16,6 @@ import './App.css';
 const HomePage = lazy(() => import('./pages/HomePage'));
 const EventsPage = lazy(() => import('./pages/EventsPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
-const CertificatesPage = lazy(() => import('./pages/CertificatesPage'));
 const VerificationPage = lazy(() => import('./pages/VerificationPage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
@@ -72,16 +71,6 @@ function App() {
                     <ProtectedRoute>
                       <PageTransition variants={pageVariants} transition={pageTransition}>
                         <ProfilePage />
-                      </PageTransition>
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/certificates"
-                  element={
-                    <ProtectedRoute>
-                      <PageTransition variants={pageVariants} transition={pageTransition}>
-                        <CertificatesPage />
                       </PageTransition>
                     </ProtectedRoute>
                   }
