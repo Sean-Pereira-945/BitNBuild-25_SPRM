@@ -1,3 +1,13 @@
+# Team SPRM
+
+<b>S</b>ean Pereira </br>
+<b>P</b>ranay Reddy </br>
+<b>R</b>alph Dsouza </br>
+<b>M</b>aric Brass </br>
+
+---
+
+
 # EventChain 🚀
 
 A modern, blockchain-powered event management platform for organizers and attendees. Mint NFT badges, verify attendance, and automate event logistics—all in one place!
