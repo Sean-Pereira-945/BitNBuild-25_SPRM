@@ -8,7 +8,7 @@ const router = express.Router();
 // @access  Public
 router.get('/', async (req, res) => {
     try {
-        const events = await Event.find({ status: 'published' })
+        const events = await Event.find({ status: 'published', isPublic: true })
             .populate('organizer', 'name email avatar')
             .sort({ date: 1 });
         
@@ -221,7 +221,7 @@ router.post('/:id/attend', auth, async (req, res) => {
         
         await event.save();
         
-        // Generate QR code data for certificate
+        // Generate QR code data for NFT badge (POAP)
         const qrData = {
             eventId: event._id,
             userId: req.userId,

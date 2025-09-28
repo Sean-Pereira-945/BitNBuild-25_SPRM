@@ -13,7 +13,7 @@ const sendWelcomeEmail = async (user) => {
   const mailOptions = buildMailOptions(
     user.email,
     'Welcome to ChainEvent! 🎉',
-    `<p>Hi ${user.name},</p><p>Welcome to ChainEvent. Start creating or attending events and earn verified blockchain certificates.</p>`
+    `<p>Hi ${user.name},</p><p>Welcome to ChainEvent. Start creating or attending events and earn NFT badges (POAPs) on the blockchain.</p>`
   );
   try {
     await transporter.sendMail(mailOptions);

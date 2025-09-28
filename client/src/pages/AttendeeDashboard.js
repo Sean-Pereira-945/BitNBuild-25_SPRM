@@ -28,7 +28,7 @@ const AttendeeOverview = () => {
     <section className="page" aria-labelledby="attendee-overview-heading">
       <header className="page__header">
         <h1 id="attendee-overview-heading">Hey {user?.name?.split(' ')[0] || 'there'} 👋</h1>
-        <p>Discover new events, verify your attendance, and grow your on-chain reputation with collectible NFTs.</p>
+        <p>Discover new events, verify your attendance, and grow your on-chain reputation with collectible NFT badges.</p>
       </header>
       <div className="page__content page__grid">
         <FeatureCard
@@ -45,7 +45,7 @@ const AttendeeOverview = () => {
         />
         <FeatureCard
           title="Showcase NFTs"
-          description="Curate your badge collection, share proof-of-attendance, and unlock sharable QR certificates."
+          description="Curate your badge collection, share proof-of-attendance, and unlock sharable QR POAPs."
           ctaLabel="View collection"
           to="collection"
         />
@@ -216,9 +216,20 @@ const QrScannerCenter = () => {
 
 const CollectionGallery = () => {
   const { showNotification } = useNotifications();
-  const { data, isLoading, isError, refetch } = useQuery(['my-certificates'], certificateService.getMyCertificates, {
-    select: (response) => response.data.data.certificates || [],
-  });
+  // Placeholder: Replace with actual badge/POAP fetch logic
+  const [data, setData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(false);
+
+  const refetch = () => {
+    setIsLoading(true);
+    // TODO: Fetch badge/POAP data from backend or blockchain
+    setTimeout(() => {
+      setIsLoading(false);
+      setIsError(false);
+      setData([]); // Replace with real data
+    }, 1000);
+  };
 
   useEffect(() => {
     if (isError) {
@@ -252,36 +263,26 @@ const CollectionGallery = () => {
         <div className="gallery-grid">
           {isLoading && <p className="muted">Loading your badges…</p>}
           {!isLoading && data?.length === 0 && <p className="muted">No badges yet. Attend an event to mint your first collectible!</p>}
-          {data?.map((certificate) => (
-            <article className="badge-card" key={certificate._id}>
+          {data?.map((badge) => (
+            <article className="badge-card" key={badge._id}>
               <header>
-                <h3>{certificate.event?.title || 'Event badge'}</h3>
-                <span>{certificate.network || 'Polygon'}</span>
+                <h3>{badge.event?.title || 'Event badge'}</h3>
+                <span>{badge.network || 'Polygon'}</span>
               </header>
               <dl>
                 <div>
                   <dt>Token ID</dt>
-                  <dd>{certificate.tokenId || 'TBD'}</dd>
+                  <dd>{badge.tokenId || 'TBD'}</dd>
                 </div>
                 <div>
                   <dt>Claimed on</dt>
-                  <dd>{certificate.createdAt ? new Date(certificate.createdAt).toLocaleDateString() : '—'}</dd>
+                  <dd>{badge.createdAt ? new Date(badge.createdAt).toLocaleDateString() : '—'}</dd>
                 </div>
                 <div>
                   <dt>Verification hash</dt>
-                  <dd className="wallet-address">{certificate.verificationHash || 'Pending'}</dd>
+                  <dd className="wallet-address">{badge.verificationHash || 'Pending'}</dd>
                 </div>
               </dl>
-              <footer>
-                <Button
-                  as={Link}
-                  to={`/certificates/${certificate._id}`}
-                  size="sm"
-                  variant="outline"
-                >
-                  View details
-                </Button>
-              </footer>
             </article>
           ))}
         </div>

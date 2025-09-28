@@ -9,16 +9,10 @@ export const EVENT_FILTERS = {
   hosted: 'hosted'
 };
 
-export const CERTIFICATE_STATUS = {
-  pending: 'pending',
-  issued: 'issued',
-  revoked: 'revoked'
-};
-
 export const NOTIFICATION_TYPES = {
   general: 'general',
   event: 'event',
-  certificate: 'certificate',
+  badge: 'badge', // changed from certificate
   social: 'social'
 };
 

@@ -73,6 +73,11 @@ app.use('/api/events', require('./src/routes/events'));       // Event managemen
 app.use('/api/users', require('./src/routes/users'));         // User management routes
 app.use('/api/certificates', require('./src/routes/certificates')); // Certificate routes
 app.use('/api/analytics', require('./src/routes/analytics'));  // Analytics routes
+app.use('/api/upload', require('./src/routes/upload'));        // Image upload route
+
+// Serve uploaded files statically
+const path = require('path');
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

@@ -32,7 +32,6 @@ const Navbar = () => {
           Home
         </NavLink>
         <NavLink to="/events">Events</NavLink>
-        <NavLink to="/certificates">Certificates</NavLink>
         <NavLink to="/about">About</NavLink>
         <NavLink to="/contact">Contact</NavLink>
         {isAuthenticated && (

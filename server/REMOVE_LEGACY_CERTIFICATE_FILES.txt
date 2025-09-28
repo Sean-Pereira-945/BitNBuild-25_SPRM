@@ -1,0 +1,7 @@
+Remove the following files and all their references from the backend:
+- src/controllers/certificateController.js
+- src/models/Certificate.js
+- src/routes/certificates.js
+- src/services/blockchainService.js
+
+Replace all certificate logic with POAP/NFT logic using the Polygon blockchain.

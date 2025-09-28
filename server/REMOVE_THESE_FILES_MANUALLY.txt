@@ -1,0 +1,7 @@
+Delete these files to remove legacy certificate logic:
+- src/controllers/certificateController.js
+- src/models/Certificate.js
+- src/routes/certificates.js
+- src/services/blockchainService.js
+
+After deletion, remove all imports/references to these files in the backend codebase.

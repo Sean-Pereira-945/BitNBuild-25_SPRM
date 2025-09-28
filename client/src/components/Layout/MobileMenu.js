@@ -33,9 +33,6 @@ const MobileMenu = () => {
               <NavLink to="/events" onClick={handleClose}>
                 Events
               </NavLink>
-              <NavLink to="/certificates" onClick={handleClose}>
-                Certificates
-              </NavLink>
               <NavLink to="/verify" onClick={handleClose}>
                 Verify NFT
               </NavLink>

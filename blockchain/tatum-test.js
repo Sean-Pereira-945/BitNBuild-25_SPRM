@@ -1,5 +1,7 @@
 import dotenv from 'dotenv';
-import fetch from 'node-fetch';
+
+// For Node.js 18+, fetch is built-in. For older versions, install node-fetch and use:
+// import fetch from 'node-fetch';
 
 dotenv.config();
 

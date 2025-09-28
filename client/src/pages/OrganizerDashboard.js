@@ -8,13 +8,13 @@ import Modal from '../components/UI/Modal';
 import useAuth from '../hooks/useAuth';
 import { useNotifications } from '../context/NotificationContext';
 import { parseAPIError } from '../utils/errorHandling';
+import axios from 'axios';
 import './pages.css';
 
 const OrganizerDashboard = () => (
   <Routes>
     <Route index element={<OrganizerOverview />} />
     <Route path="events" element={<EventWorkshop />} />
-    <Route path="nft-badges" element={<NftStudio />} />
     <Route path="qr-codes" element={<QrOrchestrator />} />
     <Route path="finance" element={<GasConsole />} />
     <Route path="*" element={<Navigate to="." replace />} />
@@ -35,12 +35,6 @@ const OrganizerOverview = () => {
           description="Spin up a new on-chain event complete with GPS validation, waitlists, and NFT badge automation."
           ctaLabel="Start event wizard"
           to="events"
-        />
-        <FeatureCard
-          title="Mint NFT badges"
-          description="Upload custom artwork, define metadata, and deploy a dedicated ERC-721 collection per event."
-          ctaLabel="Open NFT studio"
-          to="nft-badges"
         />
         <FeatureCard
           title="Control QR check-ins"
@@ -89,134 +83,6 @@ const EventWorkshop = () => {
           Launch event wizard
         </Button>
       </div>
-    </section>
-  );
-};
-
-const NftStudio = () => {
-  const { showNotification } = useNotifications();
-  const [isComposerOpen, setIsComposerOpen] = useState(false);
-  const [previewMetadata, setPreviewMetadata] = useState(null);
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors, isSubmitting },
-    watch,
-  } = useForm({
-    defaultValues: {
-      name: '',
-      description: '',
-      imageUrl: '',
-      maxSupply: 100,
-      network: 'polygon',
-    },
-  });
-
-  const imageUrl = watch('imageUrl');
-
-  const handleCompose = (values) => {
-    setPreviewMetadata({ ...values, timestamp: new Date().toISOString() });
-    showNotification({
-      type: 'success',
-      title: 'Metadata prepared',
-      message: 'Your NFT badge metadata is ready. Upload to IPFS when you are set.',
-    });
-    reset();
-    setIsComposerOpen(false);
-  };
-
-  return (
-    <section className="page" aria-labelledby="nft-studio-heading">
-      <header className="page__header">
-        <h1 id="nft-studio-heading">NFT badge studio</h1>
-        <p>Design and deploy proof-of-attendance NFTs that attendees can proudly showcase across Web3.</p>
-      </header>
-      <div className="page__content">
-        <DashboardSection
-          title="Badge pipeline"
-          items={[
-            'Upload custom images or select from template galleries optimized for POAP badges.',
-            'Generate IPFS metadata with event details, GPS proofs, and organizer signatures.',
-            'Deploy an ERC-721 contract per event or reuse a collection with metadata overrides.',
-            'Configure minting rules including claim windows, attendee whitelists, and batch minting.'
-          ]}
-        />
-        <DashboardSection
-          title="Quality checklist"
-          items={[
-            'Preview badge art across mobile and desktop to guarantee readability.',
-            'Set verification hashes to enable public inspection and anti-forgery checks.',
-            'Schedule staged minting to avoid peak gas spikes and ensure availability.'
-          ]}
-        />
-        <Button type="button" variant="outline" onClick={() => setIsComposerOpen(true)}>
-          Design new badge
-        </Button>
-        {previewMetadata && (
-          <div className="page__section">
-            <h2>Latest metadata preview</h2>
-            <pre className="metadata-preview" aria-live="polite">
-{JSON.stringify(previewMetadata, null, 2)}
-            </pre>
-          </div>
-        )}
-      </div>
-      <Modal isOpen={isComposerOpen} title="Compose NFT badge" onClose={() => setIsComposerOpen(false)}>
-        <form className="event-form" onSubmit={handleSubmit(handleCompose)}>
-          <FormInput
-            label="Badge name"
-            placeholder="VIP Summit Pass"
-            {...register('name', { required: 'Name is required' })}
-            error={errors.name?.message}
-          />
-          <div className="form-field">
-            <span className="form-field__label">Description</span>
-            <textarea
-              className="form-field__input"
-              rows={4}
-              placeholder="Describe when and how this badge is earned."
-              {...register('description', { required: 'Description is required' })}
-            />
-            {errors.description && <small className="form-field__helper has-error">{errors.description.message}</small>}
-          </div>
-          <FormInput
-            label="Artwork URL"
-            placeholder="https://ipfs.io/ipfs/..."
-            {...register('imageUrl', {
-              required: 'An image URL is required',
-              pattern: { value: /^https?:\/\/.+/, message: 'Provide a valid URL' },
-            })}
-            error={errors.imageUrl?.message}
-          />
-          {imageUrl && (
-            <img src={imageUrl} alt="Badge preview" className="badge-preview" />
-          )}
-          <FormInput
-            label="Max supply"
-            type="number"
-            min={1}
-            {...register('maxSupply', { valueAsNumber: true, min: { value: 1, message: 'Minimum supply is 1' } })}
-            error={errors.maxSupply?.message}
-          />
-          <div className="form-field">
-            <span className="form-field__label">Network</span>
-            <select className="form-field__input" {...register('network')}>
-              <option value="polygon">Polygon</option>
-              <option value="ethereum">Ethereum</option>
-              <option value="optimism">Optimism</option>
-            </select>
-          </div>
-          <footer className="event-form__actions">
-            <Button type="button" variant="ghost" onClick={() => setIsComposerOpen(false)} disabled={isSubmitting}>
-              Cancel
-            </Button>
-            <Button type="submit" isLoading={isSubmitting}>
-              Generate metadata
-            </Button>
-          </footer>
-        </form>
-      </Modal>
     </section>
   );
 };

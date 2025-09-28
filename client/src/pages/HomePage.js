@@ -1,13 +1,16 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useQuery } from '@tanstack/react-query';
+
 import Button from '../components/UI/Button';
+import { getEvents } from '../services/eventService';
 import './pages.css';
 
 const features = [
   {
     title: 'Instant blockchain notarisation',
     description:
-      'Every ticket scan and certificate issuance is sealed on-chain, giving attendees and partners verifiable proof in seconds.',
+      'Every ticket scan and NFT badge minting is sealed on-chain, giving attendees and partners verifiable proof in seconds.',
     accent: '01'
   },
   {
@@ -19,14 +22,14 @@ const features = [
   {
     title: 'Insights that keep momentum',
     description:
-      'Monitor attendance, engagement, and certification uptake in real-time dashboards, then sync results straight to your CRM.',
+      'Monitor attendance, engagement, and badge uptake in real-time dashboards, then sync results straight to your CRM.',
     accent: '03'
   }
 ];
 
 const highlights = [
   { label: 'Events launched', value: '1.2k+' },
-  { label: 'Certificates issued', value: '82k' },
+  { label: 'NFT badges minted', value: '82k' },
   { label: 'Verification uptime', value: '99.98%' },
   { label: 'Avg. onboarding time', value: '4 min' }
 ];
@@ -38,11 +41,11 @@ const roadmap = [
   },
   {
     title: 'Delight attendees instantly',
-    description: 'Responsive check-in flows, wallet-ready certificates, and push notifications keep guests in the loop.'
+    description: 'Responsive check-in flows, wallet-ready NFT badges, and push notifications keep guests in the loop.'
   },
   {
     title: 'Prove outcomes with confidence',
-    description: 'Export tamper-proof certificates, publish public verification portals, and share success metrics with stakeholders.'
+    description: 'Export tamper-proof NFT badges, publish public verification portals, and share success metrics with stakeholders.'
   }
 ];
 
@@ -54,6 +57,16 @@ const animation = {
 
 const HomePage = () => {
   const navigate = useNavigate();
+  // Fetch public events
+  const { data: eventsPayload } = useQuery({
+    queryKey: ['events', 'public-home'],
+    queryFn: async () => {
+      const response = await getEvents();
+      return response.data;
+    },
+    staleTime: 1000 * 60 * 5
+  });
+  const events = Array.isArray(eventsPayload?.data) ? eventsPayload.data : [];
 
   return (
     <div className="home" aria-labelledby="home-heading">
@@ -135,6 +148,29 @@ const HomePage = () => {
             </motion.div>
           ))}
         </div>
+      </section>
+
+      <section className="home__public-events card">
+        <h2>Upcoming Public Events</h2>
+        {events.length === 0 ? (
+          <p>No public events available right now.</p>
+        ) : (
+          <div className="home__public-event-list">
+            {events.slice(0, 3).map((event) => (
+              <div key={event._id} className="home__public-event">
+                <h3>{event.title}</h3>
+                <p>{event.shortDescription || event.description}</p>
+                <p>
+                  <strong>Date:</strong> {event.date?.slice(0, 10)} | <strong>Location:</strong> {event.location?.city},{' '}
+                  {event.location?.country}
+                </p>
+                <Button size="sm" variant="outline" onClick={() => navigate(`/events?event=${event._id}`)}>
+                  View Event
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       <section className="home__cta-block gradient-surface">

@@ -4,26 +4,26 @@ import FormInput from '../components/UI/FormInput';
 import './pages.css';
 
 const VerificationPage = () => {
-  const [certificateId, setCertificateId] = useState('');
+  const [badgeId, setBadgeId] = useState('');
   const [result, setResult] = useState(null);
 
   const handleVerify = (event) => {
     event.preventDefault();
-    setResult({ status: 'pending', message: `Verification flow for ${certificateId} coming soon.` });
+    setResult({ status: 'pending', message: `Verification flow for ${badgeId} coming soon.` });
   };
 
   return (
     <section className="page" aria-labelledby="verification-heading">
       <header className="page__header">
-        <h1 id="verification-heading">Verify credentials</h1>
-        <p>Use certificate IDs or QR codes to confirm blockchain authenticity in seconds.</p>
+        <h1 id="verification-heading">Verify NFT badge</h1>
+        <p>Use badge IDs or QR codes to confirm blockchain authenticity in seconds.</p>
       </header>
       <form className="page__section" onSubmit={handleVerify}>
         <FormInput
-          label="Certificate ID"
-          placeholder="Enter certificate hash"
-          value={certificateId}
-          onChange={(event) => setCertificateId(event.target.value)}
+          label="Badge ID"
+          placeholder="Enter badge hash"
+          value={badgeId}
+          onChange={(event) => setBadgeId(event.target.value)}
           required
         />
         <Button type="submit">Verify</Button>

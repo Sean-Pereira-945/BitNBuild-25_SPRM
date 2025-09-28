@@ -10,11 +10,10 @@ const buildDashboardMetrics = async (organizerId) => {
       acc.registrations += event.attendees.length;
       const attended = event.attendees.filter((a) => a.attended).length;
       acc.attendance += attended;
-      acc.certificates += event.attendees.filter((a) => a.certificateIssued).length;
       acc.revenue += event.registrationFee * event.attendees.length;
       return acc;
     },
-    { totalEvents: 0, registrations: 0, attendance: 0, certificates: 0, revenue: 0 }
+    { totalEvents: 0, registrations: 0, attendance: 0, revenue: 0 }
   );
 
   totals.attendanceRate = totals.registrations

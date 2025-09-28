@@ -5,9 +5,6 @@ import './Sidebar.css';
 
 const organizerLinks = [
   { to: ROLE_DASHBOARD_PATHS.organizer, label: 'Overview', end: true },
-  { to: `${ROLE_DASHBOARD_PATHS.organizer}/events`, label: 'Event Builder' },
-  { to: `${ROLE_DASHBOARD_PATHS.organizer}/nft-badges`, label: 'NFT Badge Studio' },
-  { to: `${ROLE_DASHBOARD_PATHS.organizer}/qr-codes`, label: 'QR Codes' },
   { to: `${ROLE_DASHBOARD_PATHS.organizer}/finance`, label: 'Gas & Wallet' }
 ];
 
@@ -21,7 +18,6 @@ const attendeeLinks = [
 
 const sharedLinks = [
   { to: '/profile', label: 'Profile' },
-  { to: '/certificates', label: 'Certificates' },
   { to: '/verify', label: 'Public Verification' }
 ];
 
@@ -45,13 +41,6 @@ const Sidebar = () => {
             </NavLink>
           ))}
         </nav>
-        <div className="sidebar__card">
-          <h4>Ready to dive in?</h4>
-          <p>Create an account to host events, mint NFTs, or collect badges.</p>
-          <a href="/register" className="sidebar__link">
-            Get started
-          </a>
-        </div>
       </aside>
     );
   }

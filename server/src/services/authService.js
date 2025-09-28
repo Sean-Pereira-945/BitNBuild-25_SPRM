@@ -33,7 +33,7 @@ const registerUser = async (payload, ipAddress, io) => {
     bio: payload.bio,
     location: payload.location,
     profileVisibility: payload.profileVisibility || 'public',
-    walletAddress: payload.walletAddress ? payload.walletAddress.trim().toLowerCase() : null,
+    walletAddress: payload.walletAddress && payload.walletAddress.trim() !== '' ? payload.walletAddress.trim().toLowerCase() : null,
     notificationPreferences: payload.notificationPreferences,
   });
 

@@ -1,8 +1,12 @@
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import clsx from 'clsx';
+import axios from 'axios';
+
 import Button from '../UI/Button';
 import FormInput from '../UI/FormInput';
+import { parseAPIError } from '../../utils/errorHandling';
+
 import './EventForm.css';
 
 const DEFAULT_VALUES = {
@@ -70,14 +74,50 @@ const EventForm = ({
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm({
     defaultValues: formDefaults,
   });
 
+  const isPublic = watch('isPublic');
+
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState(null);
+  const [badgeImageUrl, setBadgeImageUrl] = useState('');
+  const [inviteEmails, setInviteEmails] = useState('');
+  const [showInvites, setShowInvites] = useState(formDefaults.isPublic === false);
+
   useEffect(() => {
     reset(formDefaults);
   }, [formDefaults, reset]);
+
+  useEffect(() => {
+    setShowInvites(isPublic === false);
+  }, [isPublic]);
+
+  const handleBadgeFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    setUploading(true);
+    setUploadError(null);
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      const res = await axios.post('/api/upload/image', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+      if (res.data?.url) {
+        setBadgeImageUrl(res.data.url);
+      } else {
+        setUploadError('Upload failed');
+      }
+    } catch (err) {
+      setUploadError(parseAPIError(err));
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const handleFormSubmit = (values) => {
     const tagsArray = values.tags
@@ -107,13 +147,51 @@ const EventForm = ({
             : Number(values.location.coordinates.lng),
         },
       },
+      isPublic,
+      inviteEmails: !isPublic ? inviteEmails : undefined,
+      badge: {
+        name: values.badgeName,
+        description: values.badgeDescription,
+        imageUrl: badgeImageUrl || values.badgeImageUrl,
+      },
     };
-
     onSubmit(payload);
   };
 
   return (
-    <form className="event-form" onSubmit={handleSubmit(handleFormSubmit)}>
+    <form className="event-form event-form--tab-highlight" onSubmit={handleSubmit(handleFormSubmit)}>
+      <section className="event-form__section">
+        <h3>Event details</h3>
+        <div className="form-grid">
+          <FormInput
+            label="Event name"
+            placeholder="Blockchain Builder Summit"
+            {...register('title', { required: 'Event name is required' })}
+            error={errors.title?.message}
+          />
+          <div className="form-field">
+            <span className="form-field__label">Event type</span>
+            <select className="form-field__input" {...register('isPublic', { valueAsNumber: false })}>
+              <option value={true}>Public</option>
+              <option value={false}>Private</option>
+            </select>
+          </div>
+        </div>
+        {showInvites && (
+          <div className="form-field">
+            <span className="form-field__label">Invite emails (comma separated)</span>
+            <textarea
+              className="form-field__input"
+              rows={2}
+              placeholder="email1@example.com, email2@example.com"
+              value={inviteEmails}
+              onChange={e => setInviteEmails(e.target.value)}
+            />
+            <small className="form-field__helper">Only invited users will be able to register for this event.</small>
+          </div>
+        )}
+      </section>
+
       <section className="event-form__section">
         <h3>Event basics</h3>
         <div className="form-grid">
@@ -316,6 +394,48 @@ const EventForm = ({
               <option value="cancelled">Cancelled</option>
             </select>
           </div>
+        </div>
+      </section>
+
+      <section className="event-form__section">
+        <h3>Event NFT Badge</h3>
+        <div className="form-grid">
+          <FormInput
+            label="Badge name"
+            placeholder="VIP Summit Pass"
+            {...register('badgeName', { required: 'Badge name is required' })}
+            error={errors.badgeName?.message}
+          />
+          <div className="form-field">
+            <span className="form-field__label">Badge description</span>
+            <textarea
+              className="form-field__input"
+              rows={3}
+              placeholder="Describe when and how this badge is earned."
+              {...register('badgeDescription', { required: 'Badge description is required' })}
+            />
+            {errors.badgeDescription && <small className="form-field__helper has-error">{errors.badgeDescription.message}</small>}
+          </div>
+          <div className="form-field">
+            <span className="form-field__label">Badge artwork file</span>
+            <input type="file" accept="image/*" onChange={handleBadgeFileChange} disabled={uploading} />
+            {uploading && <small>Uploading...</small>}
+            {uploadError && <small className="form-field__helper has-error">{uploadError}</small>}
+          </div>
+          <FormInput
+            label="Badge artwork URL"
+            placeholder="https://ipfs.io/ipfs/..."
+            {...register('badgeImageUrl', {
+              required: 'Badge image URL is required',
+              pattern: { value: /^https?:\/\/.+/, message: 'Provide a valid URL' },
+              value: badgeImageUrl,
+              onChange: (e) => setBadgeImageUrl(e.target.value),
+            })}
+            error={errors.badgeImageUrl?.message}
+          />
+          {badgeImageUrl && (
+            <img src={badgeImageUrl} alt="Badge preview" className="badge-preview" style={{ maxWidth: 120, borderRadius: 8, marginTop: 8 }} />
+          )}
         </div>
       </section>
 

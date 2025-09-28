@@ -3,14 +3,21 @@
   "version": "1.0.0",
   "description": "Blockchain migration for event management",
   "main": "scripts/deploy.js",
+  "type": "module",
   "scripts": {
     "compile": "npx hardhat compile",
-    "deploy": "npx hardhat run scripts/deploy.js --network polygon"
+    "deploy": "npx hardhat run scripts/deploy.js --network polygon",
+    "test": "node tatum-test.js"
   },
   "devDependencies": {
-    "@nomiclabs/hardhat-waffle": "^2.0.3",
-    "ethers": "^5.7.2",
-    "hardhat": "^2.17.0",
-    "dotenv": "^16.0.3"
+    "@nomiclabs/hardhat-waffle": "^2.0.6",
+    "@openzeppelin/contracts": "^5.4.0",
+    "dotenv": "^16.6.1",
+    "ethers": "^5.8.0",
+    "hardhat": "^2.26.3"
+  },
+  "dependencies": {
+    "@tatumio/tatum": "^4.2.57",
+    "node-fetch": "^3.3.2"
   }
 }

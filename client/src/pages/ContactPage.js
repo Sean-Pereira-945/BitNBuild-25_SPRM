@@ -9,7 +9,7 @@ const ContactPage = () => (
     <div className="page__content">
       <div className="page__section">
         <h2>Support</h2>
-        <p>Email: support@eventchain.example</p>
+        <p>Email: EnentChain@EVC.in</p>
         <p>Phone: +1 (800) 555-0123</p>
       </div>
       <div className="page__section">
