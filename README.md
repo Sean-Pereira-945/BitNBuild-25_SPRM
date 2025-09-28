@@ -1,70 +1,89 @@
-# Getting Started with Create React App
+# EventChain 🚀
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A modern, blockchain-powered event management platform for organizers and attendees. Mint NFT badges, verify attendance, and automate event logistics—all in one place!
 
-## Available Scripts
+---
 
-In the project directory, you can run:
+## 🌟 Features
 
-### `npm start`
+- 🏆 **NFT Badge Minting:** Organizers can upload badge images and mint them as NFTs on Polygon.
+- 📱 **QR Code Check-ins:** Secure, GPS-aware QR codes for event entry and NFT badge claiming.
+- 🏠 **Public Events Home:** Indian-themed public events with organizer details displayed on the home page.
+- 🛡️ **Blockchain Verification:** All attendance and badge actions are notarized on-chain.
+- 🎨 **Beautiful UI:** Modern, responsive React frontend with a clean dashboard for organizers and attendees.
+- 🔒 **Wallet Integration:** Connect your wallet to create, host, or attend events.
+- 📊 **Analytics:** Real-time dashboards for attendance, engagement, and badge minting.
+- 📨 **Notifications:** Automated reminders and event updates.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+---
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## 🏗️ Project Structure
 
-### `npm test`
+```
+BitNBuild-25_SPRM/
+├── client/         # React frontend (UI, QR, NFT badge, event forms)
+├── server/         # Node.js/Express backend (API, DB, blockchain logic)
+├── blockchain/     # Smart contracts, Hardhat, Polygon integration
+└── README.md       # This file
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+---
 
-### `npm run build`
+## 🚦 Quick Start
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+1. **Clone the repo:**
+   ```sh
+   git clone https://github.com/Sean-Pereira-945/BitNBuild-25_SPRM.git
+   cd BitNBuild-25_SPRM
+   ```
+2. **Install dependencies:**
+   ```sh
+   cd client && npm install
+   cd ../server && npm install
+   cd ../blockchain && npm install
+   ```
+3. **Set up environment:**
+   - Copy `.env.example` to `.env` in both `client/` and `server/` and fill in required values.
+4. **Run the app:**
+   - Start backend: `cd server && npm start`
+   - Start frontend: `cd client && npm start`
+   - (Optional) Start blockchain: `cd blockchain && npx hardhat node`
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## 🧑‍💼 Organizer Flow
 
-### `npm run eject`
+1. Register/login as an organizer.
+2. Create an event (with badge image upload).
+3. Mint NFT badge for the event.
+4. Generate QR code for badge claim at any time.
+5. Share QR code with attendees for on-chain badge claiming.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+## 👥 Attendee Flow
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+1. Register/login as an attendee.
+2. Browse public events on the home page.
+3. Register for events and check in using QR code.
+4. Claim NFT badge after check-in.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+---
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+## 🛠️ Tech Stack
 
-## Learn More
+- **Frontend:** React, React Router, React Query, qrcode.react, Framer Motion
+- **Backend:** Node.js, Express, MongoDB, Mongoose, Multer
+- **Blockchain:** Hardhat, Solidity, Polygon, Tatum API
+- **Other:** Socket.io, JWT Auth, dotenv
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+---
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## 📫 Contact
 
-### Code Splitting
+- Email: EnentChain@EVC.in
+- [GitHub Repo](https://github.com/Sean-Pereira-945/BitNBuild-25_SPRM)
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+---
 
-### Analyzing the Bundle Size
+## 💡 Credits
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Made with ❤️ by the EventChain team. Special thanks to all contributors and the open-source community!
